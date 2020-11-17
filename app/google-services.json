@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "883487513587",
+    "firebase_url": "https://carbide-datum-293207.firebaseio.com",
+    "project_id": "carbide-datum-293207",
+    "storage_bucket": "carbide-datum-293207.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883487513587:android:0cfbdffe8883b3061a5086",
+        "android_client_info": {
+          "package_name": "com.example.securefam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883487513587-7gfjk91l9vvui3ak26291s3frprg8mpr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6SBc5JA1QeSV3-20eNiXgV9AXAjdoVG0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883487513587-7gfjk91l9vvui3ak26291s3frprg8mpr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
