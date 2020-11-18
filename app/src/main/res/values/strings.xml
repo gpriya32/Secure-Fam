@@ -18,4 +18,7 @@
     <string name="getMemberID">Get Email ID</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fragment_user_details">fragment_user_details</string>
+    <string name="cancel">Cancel</string>
+    <string name="okay">Okay</string>
 </resources>
