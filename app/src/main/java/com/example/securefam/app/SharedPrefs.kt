@@ -7,11 +7,6 @@ import android.content.SharedPreferences
 class SharedPrefs(context: Context) {
     private val instance: SharedPreferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
 
-    private val auth_token = "auth_token"
-    var authToken: String?
-        get() = instance.getString(auth_token, null)
-        set(value) = instance.edit().putString(auth_token, "Bearer $value").apply()
-
     private val user_name = "user_name"
     var userName: String?
         get() = instance.getString(user_name, null)

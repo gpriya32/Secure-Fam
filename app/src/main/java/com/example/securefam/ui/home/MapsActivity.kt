@@ -1,4 +1,4 @@
-package com.example.securefam.home
+package com.example.securefam.ui.home
 
 import android.app.Activity
 import android.content.Intent
@@ -12,6 +12,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.securefam.R
+import com.example.securefam.app.SecureFamApp.Companion.sharedPrefs
+import com.example.securefam.util.AppDialog
+import com.example.securefam.util.GlobalUtils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,6 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
 import java.io.IOException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -230,5 +234,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    override fun onBackPressed() {
+        if (sharedPrefs?.userName != null || FirebaseAuth.getInstance().currentUser != null) {
+            val confirmDialog = AppDialog.instance(
+                getString(R.string.confirm),
+                getString(R.string.clear_current_session),
+                object : AppDialog.AppDialogListener {
+                    override fun onClickConfirm() {
+                        GlobalUtils.logout(applicationContext, null)
+                        finish()
+                    }
 
+                    override fun onClickCancel() {}
+                },
+                getString(R.string.okay),
+                getString(R.string.cancel)
+            )
+            confirmDialog.show(supportFragmentManager, confirmDialog.tag)
+        } else {
+            super.onBackPressed()
+        }
+    }
 }

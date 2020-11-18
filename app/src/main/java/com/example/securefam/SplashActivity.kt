@@ -1,12 +1,12 @@
 package com.example.securefam
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import androidx.appcompat.app.AppCompatActivity
 import com.example.securefam.app.SecureFamApp.Companion.sharedPrefs
-import com.example.securefam.auth.OnboardActivity
-import com.example.securefam.home.MapsActivity
+import com.example.securefam.ui.auth.OnboardActivity
+import com.example.securefam.ui.home.MapsActivity
 import com.example.securefam.util.GlobalUtils
 import com.google.firebase.auth.FirebaseAuth
 

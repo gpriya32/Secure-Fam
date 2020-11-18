@@ -21,4 +21,6 @@
     <string name="fragment_user_details">fragment_user_details</string>
     <string name="cancel">Cancel</string>
     <string name="okay">Okay</string>
+    <string name="confirm">Confirm</string>
+    <string name="clear_current_session">You want to exit SecureFam ?</string>
 </resources>

@@ -29,10 +29,10 @@
             android:value="@string/google_maps_api" />
 
         <activity
-            android:name=".home.MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:name="com.example.securefam.ui.home.MapsActivity"
+            android:label="@string/title_activity_maps" />
         <activity
-            android:name=".auth.OnboardActivity"
+            android:name="com.example.securefam.ui.auth.OnboardActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
