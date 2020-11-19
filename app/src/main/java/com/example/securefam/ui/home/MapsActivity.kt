@@ -86,6 +86,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun placeMarkerOnMap(location: LatLng) {
+        mMap.clear()
         mMap.addMarker(MarkerOptions().position(location).apply {
             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             title("${sharedPrefs?.userName}\n${getAddress(location)}")
