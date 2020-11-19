@@ -13,6 +13,7 @@ import com.example.securefam.ui.home.MapsActivity
 import com.example.securefam.util.AppDialog
 import com.example.securefam.util.GlobalUtils
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -54,7 +55,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
         fragment.arguments = Bundle().apply {
             putBoolean("btnDownState", btnDownState)
         }
-        transaction.replace(R.id.fragment_user_details, fragment, fragment.tag)
+        transaction.replace(R.id.details_frame, fragment, fragment.tag)
         transaction.commit()
     }
 
@@ -68,7 +69,8 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
             R.id.btn_down -> {
-                if (btnDownState) {
+                btnDownState = !btnDownState
+                if (!btnDownState) {
                     btn_down.text = getString(R.string.sign_up) + "?"
                     btn_up.text = getString(R.string.login)
                     openFragment(LoginSignUpFragment(), btnDownState)
@@ -77,7 +79,6 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
                     btn_up.text = getString(R.string.sign_up)
                     openFragment(LoginSignUpFragment(), btnDownState)
                 }
-                btnDownState = !btnDownState
             }
         }
     }
@@ -96,7 +97,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         val currFragment =
-            supportFragmentManager.findFragmentByTag(getString(R.string.fragment_user_details))!!
+            supportFragmentManager.findFragmentById(R.id.details_frame)!!
         val email = currFragment.tf_email.text.toString()
         val password = currFragment.tf_password.text.toString()
 
@@ -143,7 +144,10 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 } else {
                     loadingDialog.dismiss()
-                    GlobalUtils.getFirebaseErrorMessage(task.exception?.message, baseContext)
+                    GlobalUtils.getFirebaseErrorMessage(
+                        (task.exception as FirebaseAuthException).errorCode,
+                        baseContext
+                    )
                 }
             }
     }
@@ -162,7 +166,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         val currFragment =
-            supportFragmentManager.findFragmentByTag(getString(R.string.fragment_user_details))!!
+            supportFragmentManager.findFragmentById(R.id.details_frame)!!
         val email = currFragment.tf_email.text.toString()
         val password = currFragment.tf_password.text.toString()
         val firstName = currFragment.tf_first_name.text.toString()
@@ -173,7 +177,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
 
-        auth.signInWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     auth.currentUser?.let {
@@ -181,10 +185,10 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
                             User(email, firstName, lastName, null, null)
                         ) { error, ref ->
                             if (error == null) {
+                                btnDownState = false
                                 btn_down.text = getString(R.string.sign_up) + "?"
                                 btn_up.text = getString(R.string.login)
                                 openFragment(LoginSignUpFragment(), btnDownState)
-                                btnDownState = false
                                 loadingDialog.dismiss()
                             } else {
                                 Toast.makeText(
@@ -197,7 +201,10 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 } else {
                     loadingDialog.dismiss()
-                    GlobalUtils.getFirebaseErrorMessage(task.exception?.message, baseContext)
+                    GlobalUtils.getFirebaseErrorMessage(
+                        (task.exception as FirebaseAuthException).errorCode,
+                        baseContext
+                    )
                 }
             }
     }
