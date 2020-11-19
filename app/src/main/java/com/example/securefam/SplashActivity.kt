@@ -16,13 +16,13 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         Handler().postDelayed({
-            if(FirebaseAuth.getInstance().currentUser?.uid != null && sharedPrefs?.userName != null ) {
+            if (FirebaseAuth.getInstance().currentUser?.uid != null && sharedPrefs?.userName != null) {
                 GlobalUtils.startActivityAsNewStack(Intent(this, MapsActivity::class.java), this)
                 finish()
             } else {
                 GlobalUtils.startActivityAsNewStack(Intent(this, OnboardActivity::class.java), this)
                 finish()
             }
-        }, 3000)
+        }, 1000)
     }
 }

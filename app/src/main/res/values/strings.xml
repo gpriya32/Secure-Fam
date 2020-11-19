@@ -23,4 +23,7 @@
     <string name="okay">Okay</string>
     <string name="confirm">Confirm</string>
     <string name="clear_current_session">You want to exit SecureFam ?</string>
+    <string name="important">Important</string>
+    <string name="location_permission_request">"Location access necessary for normal working of the SecureFam. "</string>
+    <string name="location_on_request">Switch on location settings for SecureFam.</string>
 </resources>

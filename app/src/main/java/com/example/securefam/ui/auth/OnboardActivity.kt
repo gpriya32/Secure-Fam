@@ -31,7 +31,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
     private val loadingDialog = AppDialog.instance()
 
     companion object {
-        var TAG ="MainActivity"
+        private val TAG = this::class.java.simpleName
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,18 +95,24 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
             auth.signOut()
         }
 
-        var currFragment =
+        val currFragment =
             supportFragmentManager.findFragmentByTag(getString(R.string.fragment_user_details))!!
-        auth.signInWithEmailAndPassword(
-            currFragment.tf_email.text.toString(),
-            currFragment.tf_password.text.toString()
-        )
+        val email = currFragment.tf_email.text.toString()
+        val password = currFragment.tf_password.text.toString()
+
+        if (!GlobalUtils.validateDetails(email, password)) {
+            Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     auth.currentUser?.let {
                         database.child("users/${it.uid}").apply {
                             addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    sharedPrefs?.uId = it.uid
                                     sharedPrefs?.userName =
                                         "${dataSnapshot.child("first_name").value.toString()} ${
                                             dataSnapshot.child("last_name").value.toString()
@@ -155,24 +161,24 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
             auth.signOut()
         }
 
-        var currFragment =
+        val currFragment =
             supportFragmentManager.findFragmentByTag(getString(R.string.fragment_user_details))!!
-        auth.signInWithEmailAndPassword(
-            currFragment.tf_email.text.toString(),
-            currFragment.tf_password.text.toString()
-        )
-            .addOnCompleteListener(this) { task ->
+        val email = currFragment.tf_email.text.toString()
+        val password = currFragment.tf_password.text.toString()
+        val firstName = currFragment.tf_first_name.text.toString()
+        val lastName = currFragment.tf_last_name.text.toString()
 
+        if (!GlobalUtils.validateDetails(email, password, firstName, lastName)) {
+            Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     auth.currentUser?.let {
                         database.child("users/${it.uid}").setValue(
-                            User(
-                                currFragment.tf_email.text.toString(),
-                                currFragment.tf_first_name.text.toString(),
-                                currFragment.tf_last_name.text.toString(),
-                                null,
-                                null
-                            )
+                            User(email, firstName, lastName, null, null)
                         ) { error, ref ->
                             if (error == null) {
                                 btn_down.text = getString(R.string.sign_up) + "?"

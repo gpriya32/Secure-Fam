@@ -6,12 +6,17 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.widget.Toast
+import androidx.work.WorkManager
+import com.example.securefam.SplashActivity
 import com.example.securefam.app.SecureFamApp.Companion.sharedPrefs
+import com.example.securefam.worker.DatabaseUpdateWorker
 import com.google.firebase.auth.FirebaseAuth
 
 
 class GlobalUtils {
     companion object {
+
+        private val DATABASE_UPDATE_WORKER = DatabaseUpdateWorker::class.java.simpleName
 
         fun startActivityAsNewStack(
             intent: Intent,
@@ -27,6 +32,27 @@ class GlobalUtils {
         ) {
             sharedPrefs?.clearSession()
             FirebaseAuth.getInstance().signOut()
+
+            activity?.let {
+                try {
+                    // Stopping Session Ping Worker
+                    WorkManager.getInstance(activity.applicationContext)
+                        .cancelUniqueWork(DATABASE_UPDATE_WORKER)
+                } catch (e: Exception) {
+                    //Log.wtf("Application Logout", "Unable to close services.")
+                }
+            }
+
+            val intent = Intent(context, SplashActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            context.startActivity(intent)
+        }
+
+        fun validateDetails(vararg input: String?): Boolean {
+            for (item in input) {
+                if (item == null) return false
+            }
+            return true
         }
 
         fun isNetworkAvailable(context: Context): Boolean {

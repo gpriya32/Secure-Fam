@@ -5,7 +5,13 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 
 class SharedPrefs(context: Context) {
-    private val instance: SharedPreferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
+    private val instance: SharedPreferences =
+        context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
+
+    private val uid = "uid"
+    var uId: String?
+        get() = instance.getString(uid, null)
+        set(value) = instance.edit().putString(uid, value).apply()
 
     private val user_name = "user_name"
     var userName: String?
