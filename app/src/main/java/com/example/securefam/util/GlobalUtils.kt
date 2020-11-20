@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
-import android.util.Log
 import android.widget.Toast
 import androidx.work.WorkManager
 import com.example.securefam.SplashActivity
@@ -51,7 +50,7 @@ class GlobalUtils {
 
         fun validateDetails(vararg input: String?): Boolean {
             for (item in input) {
-                if (item == null) return false
+                if (item.isNullOrEmpty()) return false
             }
             return true
         }

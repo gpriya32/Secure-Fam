@@ -39,7 +39,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var requestConstraints: Constraints
 
     companion object {
-        private val TAG = this::class.java.simpleName
+        private val TAG = MapsActivity::class.java.simpleName
         private val DATABASE_UPDATE_WORKER = DatabaseUpdateWorker::class.java.simpleName
     }
 
@@ -51,22 +51,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        locationUpdater = AirLocation(this, object : AirLocation.Callback {
-            override fun onSuccess(locations: ArrayList<Location>) {
-                placeMarkerOnMap(LatLng(locations.last().latitude, locations.last().longitude))
-            }
-
-            override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
-                Log.wtf(TAG, locationFailedEnum.name)
-            }
-        }).apply { start() }
+        setUpLocationUpdates()
 
         requestConstraints =
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         databaseUpdateRequest =
             PeriodicWorkRequest.Builder(DatabaseUpdateWorker::class.java, 15, TimeUnit.MINUTES)
                 .setConstraints(requestConstraints).build()
-
     }
 
     /**
@@ -82,7 +73,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap = googleMap
         mMap.uiSettings.isZoomControlsEnabled = true
         mMap.setOnMarkerClickListener(this)
-        setUpMap()
+        mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+        val lat = sharedPrefs?.userLat
+        val long = sharedPrefs?.userLong
+        if (!lat.isNullOrEmpty() && !long.isNullOrEmpty() && (long != "null") and (lat != "null")) {
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        sharedPrefs?.userLat!!.toDouble(), sharedPrefs?.userLong
+                        !!.toDouble()
+                    ), 12f
+                )
+            )
+        }
     }
 
     private fun placeMarkerOnMap(location: LatLng) {
@@ -91,27 +94,41 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             title("${sharedPrefs?.userName}\n${getAddress(location)}")
         })
+        val lat = sharedPrefs?.userLat
+        val long = sharedPrefs?.userLong
+        if (lat.isNullOrEmpty() or long.isNullOrEmpty() or long.equals("null") or lat.equals("null")) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 12f))
+        }
         sharedPrefs?.userLat = location.latitude.toString()
         sharedPrefs?.userLat = location.longitude.toString()
     }
 
-    private fun setUpMap() {
-        mMapLocationUpdater = AirLocation(this, object : AirLocation.Callback {
-            override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
-                Log.wtf(TAG, locationFailedEnum.name)
-            }
-
+    private fun setUpLocationUpdates() {
+        locationUpdater = AirLocation(this, object : AirLocation.Callback {
             @SuppressLint("MissingPermission")
             override fun onSuccess(locations: ArrayList<Location>) {
                 mMap.isMyLocationEnabled = true
-                mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
-                val currentLatLng = LatLng(locations.last().latitude, locations.last().longitude)
-                placeMarkerOnMap(currentLatLng)
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                placeMarkerOnMap(LatLng(locations.last().latitude, locations.last().longitude))
                 startDatabaseUpdateWorker()
             }
 
-        })
+            override fun onFailure(locationFailedEnum: AirLocation.LocationFailedEnum) {
+                val infoDialog = AppDialog.instance(
+                    getString(R.string.important),
+                    getString(R.string.location_permission_request),
+                    object : AppDialog.AppDialogListener {
+                        override fun onClickConfirm() {
+                            setUpLocationUpdates()
+                        }
+
+                        override fun onClickCancel() {}
+                    },
+                    getString(R.string.okay),
+                    getString(R.string.cancel)
+                )
+                infoDialog.show(supportFragmentManager, infoDialog.tag)
+            }
+        }).apply { start() }
     }
 
     private fun startDatabaseUpdateWorker() {
@@ -154,7 +171,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
-    private fun getAddress(latLng: LatLng): String {
+    private fun getAddress(latLng: LatLng): String? {
         val geocoder = Geocoder(this, Locale.getDefault())
         val addresses: List<Address>?
         val address: Address
@@ -162,7 +179,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            if (addresses != null && addresses.isNotEmpty()) {
+            if (!addresses.isNullOrEmpty()) {
                 address = addresses[0]
                 for (i in 0 until address.maxAddressLineIndex) {
                     addressText.plus(
@@ -172,6 +189,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             )
                         }"
                     )
+                    Log.wtf(TAG, addressText)
                 }
             }
         } catch (e: IOException) {
@@ -180,7 +198,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
-        return addressText!!
+        return addressText
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -102,6 +102,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
         val password = currFragment.tf_password.text.toString()
 
         if (!GlobalUtils.validateDetails(email, password)) {
+            loadingDialog.dismiss()
             Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_LONG).show()
             return
         }
@@ -173,6 +174,7 @@ class OnboardActivity : AppCompatActivity(), View.OnClickListener {
         val lastName = currFragment.tf_last_name.text.toString()
 
         if (!GlobalUtils.validateDetails(email, password, firstName, lastName)) {
+            loadingDialog.dismiss()
             Toast.makeText(this, "Fields cannot be empty", Toast.LENGTH_LONG).show()
             return
         }
